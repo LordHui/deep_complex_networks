@@ -1,21 +1,33 @@
-Deep Complex Networks
-=====================
+# Complex-Valued Neural Networks in Keras with Tensorflow
+[![Documentation](https://readthedocs.org/projects/keras-complex/badge/?version=latest)](https://keras-complex.readthedocs.io/) [![PyPI Status](https://img.shields.io/pypi/status/keras-complex.svg)](https://pypi.python.org/pypi/keras-complex) [![PyPI Versions](https://img.shields.io/pypi/pyversions/keras-complex.svg)](https://pypi.python.org/pypi/keras-complex) [![Build Status](https://travis-ci.org/JesperDramsch/keras-complex.svg?branch=master)](https://travis-ci.org/JesperDramsch/keras-complex) [![PyPI License](https://img.shields.io/pypi/l/keras-complex.svg)](LICENSCE.md)
 
-This repository contains code which reproduces experiments presented in
-the paper [Deep Complex Networks](https://arxiv.org/abs/1705.09792).
+
+
+
+
+
+
+[Complex-valued convolutions](https://en.wikipedia.org/wiki/Convolution#Domain_of_definition) could provide some interesting results in signal processing-based deep learning. A simple(-ish) idea is including explicit phase information of time series in neural networks. This code enables complex-valued convolution in convolutional neural networks in [keras](https://keras.io) with the [TensorFlow](https://tensorflow.org/) backend. This makes the network modular and interoperable with standard keras layers and operations.
+
+This code is very much in **Alpha**. Please consider helping out improving the code to advance together. This repository is based on the code which reproduces experiments presented in the paper [Deep Complex Networks](https://arxiv.org/abs/1705.09792). It is a port to Keras with Tensorflow-backend.
 
 Requirements
 ------------
 
+- numpy
+- scipy
+- scikit-learn
+- keras
+- tensorflow 1.X or tensorflow-gpu 1.X
+
 Install requirements for computer vision experiments with pip:
 ```
-pip install numpy Theano keras kerosene
+pip install -f requirements.txt
 ```
 
-And for music experiments:
+For the non-gpu version:
 ```
-pip install scipy sklearn intervaltree resampy
-pip install git+git://github.com/bartvm/mimir.git
+pip install -f requirements-nogpu.txt
 ```
 
 Depending on your Python installation you might want to use anaconda or other tools.
@@ -25,81 +37,58 @@ Installation
 ------------
 
 ```
-pip install .
+pip install keras-complex
+```
+and
+```
+pip install tensorflow-gpu
 ```
 
-Experiments
------------
+Usage
+-----
+Build your neural networks with the help of keras. 
 
-### Computer vision
+```python
+import complexnn
 
-1. Get help:
+import keras
+from keras import models
+from keras import layers
+from keras import optimizers
 
-    ```
-    python scripts/run.py train --help
-    ```
+model = models.Sequential()
 
-2. Run models:
+model.add(complexnn.conv.ComplexConv2D(32, (3, 3), activation='modrelu', padding='same', input_shape=input_shape))
+model.add(complexnn.bn.ComplexBatchNormalization())
+model.add(layers.MaxPooling2D((2, 2), padding='same'))
 
-    ```
-    python scripts/run.py train -w WORKDIR --model {real,complex} --sf STARTFILTER --nb NUMBEROFBLOCKSPERSTAGE
-    ```
+model.compile(optimizer=optimizers.Adam(), loss='mse')
 
-    Other arguments may be added as well; Refer to run.py train --help for
-    
-      - Optimizer settings
-      - Dropout rate
-      - Clipping
-      - ...
-
-
-### MusicNet
-
-0. Download the dataset from [the official page](https://homes.cs.washington.edu/~thickstn/musicnet.html)
-
-    ```
-    mkdir data/
-    wget https://homes.cs.washington.edu/~thickstn/media/musicnet.npz -P data/
-    ```
-
-1. Resample the dataset with 
-
-    ```
-    resample.py data/musicnet.npz data/musicnet_11khz.npz 44100 11000
-    ```
-
-2. Run shallow models
-
-    ```
-    train.py shallow_model --in-memory --model=shallow_convnet --local-data data/musicnet_11khz.npz
-    train.py shallow_complex_model --in-memory --model=complex_shallow_convnet --complex --local-data data/musicnet_11khz.npz
-    ```
-
-3. Run deep models
-
-    ```
-    train.py deep_model --in-memory --model=deep_convnet --fourier --local-data data/musicnet_11khz.npz
-    train.py deep_complex_model --in-memory --model=complex_deep_convnet --fourier --complex --local-data data/musicnet_11khz.npz
-    ```
-
-4. Visualize with jupyter notebook
-
-    Run the notebook `notebooks/visualize_musicnet.ipynb`.
-
-    ![precision-recall](imgs/precision_recall.png "Precision-recall curve")
-    ![predicitons](imgs/pred_gt.png "Prediction example")
+```
 
 
 Citation
 --------
 
-Please cite our work as 
+Please cite the original work as: 
 
 ```
-@ARTICLE {,
+@ARTICLE {Trabelsi2017,
     author  = "Chiheb Trabelsi, Olexa Bilaniuk, Ying Zhang, Dmitriy Serdyuk, Sandeep Subramanian, João Felipe Santos, Soroush Mehri, Negar Rostamzadeh, Yoshua Bengio, Christopher J Pal",
     title   = "Deep Complex Networks",
     journal = "arXiv preprint arXiv:1705.09792",
     year    = "2017"
+}
+```
+
+Cite this software version as:
+```
+@misc{dramsch2019complex, 
+    title     = {Complex-Valued Neural Networks in Keras with Tensorflow}, 
+    url       = {https://figshare.com/articles/Complex-Valued_Neural_Networks_in_Keras_with_Tensorflow/9783773/1}, 
+    DOI       = {10.6084/m9.figshare.9783773}, 
+    publisher = {figshare}, 
+    author    = {Dramsch, Jesper S{\"o}ren and Contributors}, 
+    year      = {2019}
 }
 ```
